@@ -1,12 +1,12 @@
 from __future__ import print_function
 
 from sage.all import *
-#from binaryqf import binaryQF
+from cornacchia import cornacchia
 
 def normalized_norm(alpha, I):
     """
-    Returns the normalized norm N(alpha) / N(I). Using the notation in the paper
-    it computes q_I(alpha).
+    Returns the normalized norm N(alpha) / N(I). Using the notation in the
+    paper, it computes q_I(alpha).
 
     Args:
         alpha: An element of I.
@@ -61,10 +61,8 @@ def prime_norm_representative(I, max_order):
     alpha = B(0)
     # Choose random elements in I one is found with prime norm.
     while normalized_norm(alpha, I) not in Primes():
-        # TODO: Check random number generator chooses elements in range [-m, m]
-        # not [0, m].
         alpha = sum(
-            (ZZ.random_element(x=m) * alpha_i for alpha_i in I.basis()))
+            (ZZ.random_element(-m, m+1) * alpha_i for alpha_i in I.basis()))
 
     # Now we have an element alpha of prime norm the ideal J = I*gamma has
     # prime norm where gamma = conjguate(alpha) / N(I).
@@ -86,8 +84,8 @@ def f(x, y, q):
     """
     return x**2 + q*y**2
 
-def solve_norm_equation(r, q):
-    """ Solves x^2 - q*y^2 = r.
+def solve_norm_equation(q, r):
+    """ Solves x^2 + q*y^2 = r.
 
     Args:
         r: A Sage integer.
@@ -98,14 +96,15 @@ def solve_norm_equation(r, q):
     """
     # At the moment this is very easy since I am assuming we q = 1. It gets 
     # harder without this assumption.
-    if q != 1:
-        raise NotImplementedError('q must be 1')
+    if q == 1:
+        try:
+            sol = two_squares(r)
+            return sol
+        except ValueError:
+            return None
+    else:
+        raise NotImplementedError('q must be equal to 1 and was ' + str(q))
 
-    try:
-        sol = two_squares(r)
-        return sol
-    except ValueError:
-        return None
 
 
 
@@ -123,17 +122,15 @@ def element_of_norm(M, max_order):
     x_2 = ZZ.random_element(x=m)
     y_2 = ZZ.random_element(x=m)
     while True:
-        # TODO: Check random number generator chooses elements in range [-m, m]
-        # not [0, m].
-        x_2 = ZZ.random_element(x=m)
-        y_2 = ZZ.random_element(x=m)
+        x_2 = ZZ.random_element(-m, m+1)
+        y_2 = ZZ.random_element(-m ,m+1)
         r = M - p * f(x_2, y_2, q)
-        # Do not need to assume r is prime since solving the norm equation seems
-        # to happen quickly even when r is composite.
-        # if r not in Primes():
-        #     continue
 
-        sol = solve_norm_equation(r, q)
+        if r not in Primes(): # Can replace with easily factorable.
+            continue
+
+        # The norm equation is N(x + iy) = x^2 + qy^2.
+        sol = cornacchia(q, r)
         if sol is not None:
             break
 

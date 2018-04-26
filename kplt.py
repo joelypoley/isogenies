@@ -126,7 +126,7 @@ def element_of_norm(M, O):
     i = B.gen(0)
     j = B.gen(1)
     q, p = [Integer(-i**2), Integer(-j**2)]
-    m = 10
+    m = 10000
     r = 0
     sol = None
     x_2 = ZZ.random_element(x=m)

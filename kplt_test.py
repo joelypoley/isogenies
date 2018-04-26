@@ -11,25 +11,25 @@ class IdealsTest(unittest.TestCase):
 
     def test_prime_norm_representative(self):
         B = QuaternionAlgebra(59)
-        max_order = B.maximal_order()
-        I = max_order.left_ideal([2 * a for a in max_order.basis()])
-        J = prime_norm_representative(I, max_order)
-        self.assertTrue(J.norm() in Primes() and J.left_order() == max_order)
+        O = B.maximal_order()
+        I = O.left_ideal(O.basis()).scale(2)
+        J = prime_norm_representative(I, O)
+        self.assertTrue(J.norm() in Primes() and J.left_order() == O)
 
     def test_element_of_norm(self):
         B = QuaternionAlgebra(59)
-        max_order = B.maximal_order()
-        I = max_order.left_ideal([2 * a for a in max_order.basis()])
+        O = B.maximal_order()
+        I = O.left_ideal(O.basis()).scale(2)
         M = 200001
-        gamma = element_of_norm(M, max_order)
+        gamma = element_of_norm(M, O)
         self.assertTrue(gamma.reduced_norm() == M)
 
     def test_element_of_norm_large(self):
         B = QuaternionAlgebra(1019)
-        max_order = B.maximal_order()
-        I = max_order.left_ideal([2 * a for a in max_order.basis()])
+        O = B.maximal_order()
+        I = O.left_ideal(O.basis()).scale(2)
         M = 200000
-        gamma = element_of_norm(M, max_order)
+        gamma = element_of_norm(M, O)
         self.assertTrue(gamma.reduced_norm() == M)
 
 

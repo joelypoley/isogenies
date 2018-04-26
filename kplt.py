@@ -3,6 +3,7 @@ from __future__ import print_function
 from sage.all import *
 from cornacchia import cornacchia
 
+
 def normalized_norm(alpha, I):
     """
     Returns the normalized norm N(alpha) / N(I). Using the notation in the
@@ -38,16 +39,16 @@ def is_minkowski_basis(basis):
         for alpha_i in basis)
 
 
-def prime_norm_representative(I, max_order):
+def prime_norm_representative(I, O):
     """
-    Given a maximal order max_order and a left max_order-ideal return another
-    left max_order J in the same class, but with prime norm.
+    Given a maximal order O and a left `O`-ideal return another
+    left O J in the same class, but with prime norm.
 
     Args:
-        I: A left max_order-ideal.
-        max_order: A maxmimal order in a quaternion algebra.
+        I: A left O-ideal.
+        O: A maxmimal order in a quaternion algebra.
     Returns:
-        Another left max_order-ideal in the same class with prime norm.
+        Another left O-ideal in the same class with prime norm.
 
     """
     if not is_minkowski_basis(I.basis()):
@@ -57,20 +58,21 @@ def prime_norm_representative(I, max_order):
     B = I.quaternion_algebra()
     if mod(B.discriminant(), 4) != 3:
         raise NotImplementedError('The quaternion algebra must have'
-            ' discriminant p = 3 mod 4')
+                                  ' discriminant p = 3 mod 4')
     alpha = B(0)
-    # Choose random elements in I one is found with prime norm.
+    # Choose random elements in I until one is found with prime norm.
     while normalized_norm(alpha, I) not in Primes():
         alpha = sum(
-            (ZZ.random_element(-m, m+1) * alpha_i for alpha_i in I.basis()))
+            (ZZ.random_element(-m, m + 1) * alpha_i for alpha_i in I.basis()))
 
     # Now we have an element alpha of prime norm the ideal J = I*gamma has
     # prime norm where gamma = conjguate(alpha) / N(I).
     N = I.norm()
     gamma = alpha.conjugate() / N
     J_basis = [alpha_i * gamma for alpha_i in I.basis()]
-    J = max_order.left_ideal(J_basis)
+    J = O.left_ideal(J_basis)
     return J
+
 
 def f(x, y, q):
     """Computes the principal form f(x, y) in the paper.
@@ -78,11 +80,12 @@ def f(x, y, q):
         x: A Sage integer.
         y: A Sage integer.  
         q: i^2 if p = 3 mod 4.
-    
+
     Returns:
         A Sage integer.
     """
-    return x**2 + q*y**2
+    return x**2 + q * y**2
+
 
 def solve_norm_equation(q, r):
     """ Solves x^2 + q*y^2 = r.
@@ -94,7 +97,7 @@ def solve_norm_equation(q, r):
     Returns:
         Tuple of Sage integers (x, y) or None if there is no solution.
     """
-    # At the moment this is very easy since I am assuming we q = 1. It gets 
+    # At the moment this is very easy since I am assuming we q = 1. It gets
     # harder without this assumption.
     if q == 1:
         try:
@@ -106,13 +109,20 @@ def solve_norm_equation(q, r):
         raise NotImplementedError('q must be equal to 1 and was ' + str(q))
 
 
+def element_of_norm(M, O):
+    """Finds an element of O with norm M.
 
+    Args:
+        M: A sage integer.
+        O: A maximal order in a quaternion algebra.
 
-def element_of_norm(M, max_order):
-    B = max_order.quaternion_algebra()
+    Returns:
+        gamma in O such that N(gamma) = M
+    """
+    B = O.quaternion_algebra()
     if mod(B.discriminant(), 4) != 3:
         raise NotImplementedError('The quaternion algebra must have'
-            ' discriminant p = 3 mod 4')
+                                  ' discriminant p = 3 mod 4')
     i = B.gen(0)
     j = B.gen(1)
     q, p = [Integer(-i**2), Integer(-j**2)]
@@ -122,11 +132,11 @@ def element_of_norm(M, max_order):
     x_2 = ZZ.random_element(x=m)
     y_2 = ZZ.random_element(x=m)
     while True:
-        x_2 = ZZ.random_element(-m, m+1)
-        y_2 = ZZ.random_element(-m ,m+1)
+        x_2 = ZZ.random_element(-m, m + 1)
+        y_2 = ZZ.random_element(-m, m + 1)
         r = M - p * f(x_2, y_2, q)
 
-        if r not in Primes(): # Can replace with easily factorable.
+        if r not in Primes():  # Can replace with easily factorable.
             continue
 
         # The norm equation is N(x + iy) = x^2 + qy^2.
@@ -139,8 +149,4 @@ def element_of_norm(M, max_order):
     beta = x_2 + y_2 * i
     assert Integer((alpha + beta * j).reduced_norm()) == M
     return alpha + beta * j
-
-
-
-
 

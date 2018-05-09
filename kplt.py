@@ -110,14 +110,14 @@ def solve_norm_equation(q, r):
 
 
 def element_of_norm(M, O):
-    """Finds an element of O with norm M.
+    """Finds an element of B with norm M.
 
     Args:
         M: A sage integer.
         O: A maximal order in a quaternion algebra.
 
     Returns:
-        gamma in O such that N(gamma) = M
+        gamma in B such that gamma.reduced_norm() == M
     """
     B = O.quaternion_algebra()
     if mod(B.discriminant(), 4) != 3:
